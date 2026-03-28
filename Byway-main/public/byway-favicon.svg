@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Background rounded square -->
+  <rect width="64" height="64" rx="12" fill="#5A3E2B"/>
+  
+  <!-- Minimal road icon -->
+  <path d="M32 8 L32 56" stroke="#F4E9D8" stroke-width="6" stroke-dasharray="6,6"/>
+  
+  <!-- Letter B -->
+  <text x="32" y="38"
+        text-anchor="middle"
+        font-family="Arial, sans-serif"
+        font-size="26"
+        font-weight="bold"
+        fill="#F4E9D8">
+    B
+  </text>
+</svg>
