@@ -97,6 +97,13 @@ const CourseCard = ({ data, index, handlenavigate, page }) => {
               alt={data.coursename}
               sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
+          ) : data.courseimage ? (
+            <Box
+              component="img"
+              src={`/${data.courseimage}`}
+              alt={data.coursename}
+              sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
           ) : (
             <Typography sx={{ fontSize: '48px', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.2))' }}>
               {data.icon || '📚'}

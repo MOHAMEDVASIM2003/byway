@@ -8,6 +8,7 @@ import { mockInstructors } from '../../../data/mockData';
 const Popularmentors = () => {
     const [topinstructor, setInstructor] = useState([]);
     const [showAll, setShowAll] = useState(false);
+    const [failedImages, setFailedImages] = useState({});
 
     useEffect(() => {
         axios.get("http://localhost:5000/instructor/allinstructor")
@@ -23,6 +24,10 @@ const Popularmentors = () => {
                 setInstructor(mockInstructors);
             });
     }, []);
+
+    const handleImageError = (imageName) => {
+        setFailedImages(prev => ({ ...prev, [imageName]: true }));
+    };
 
     const handleToggleView = () => {
         setShowAll(!showAll);
@@ -76,7 +81,7 @@ const Popularmentors = () => {
                         <Box sx={{
                             width: '100%',
                             height: '140px',
-                            background: data.image
+                            background: (data.image && !failedImages[data.image])
                                 ? '#f1f5f9'
                                 : (data.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'),
                             display: 'flex',
@@ -85,10 +90,13 @@ const Popularmentors = () => {
                             position: 'relative',
                             overflow: 'hidden',
                         }}>
-                            {data.image ? (
+                            {data.image && !failedImages[data.image] ? (
                                 <Box
                                     component="img"
                                     src={`http://localhost:5000/instructorprofile/${data.image}`}
+                                    onError={() => {
+                                        handleImageError(data.image);
+                                    }}
                                     alt={data.name}
                                     sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 />

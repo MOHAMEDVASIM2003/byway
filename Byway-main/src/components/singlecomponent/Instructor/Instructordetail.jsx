@@ -112,9 +112,15 @@ const Instructordetail = () => {
 
           {/* Right Column - Avatar and Buttons */}
           <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-            <Avatar
-              sx={{ width: '200px', height: '200px', borderRadius: '50%', bgcolor: '#E0E7FF' }}
+            <Box
+              component="img"
+              sx={{ width: '200px', height: '200px', borderRadius: '50%', bgcolor: '#E0E7FF', objectFit: 'cover', border: '3px solid #E0E7FF' }}
               src={`http://localhost:5000/instructorprofile/${instructordetail[0]?.image}`}
+              onError={(e) => {
+                if (e.target.src.includes('localhost:5000')) {
+                  e.target.src = `/${instructordetail[0]?.image}`;
+                }
+              }}
             />
             <Button
               variant="outlined"
