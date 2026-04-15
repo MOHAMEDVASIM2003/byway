@@ -15,6 +15,7 @@ export const mockCourses = [
     level: 'All Levels',
     gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     icon: '💻',
+    courseimage: 'web.jpg',
   },
   {
     courseid: 'c002',
@@ -30,6 +31,7 @@ export const mockCourses = [
     level: 'Intermediate',
     gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
     icon: '📊',
+    courseimage: 'datascience.jpg',
   },
   {
     courseid: 'c003',
@@ -45,6 +47,7 @@ export const mockCourses = [
     level: 'Beginner',
     gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
     icon: '🎨',
+    courseimage: 'uiux.jpg',
   },
   {
     courseid: 'c004',
@@ -60,6 +63,7 @@ export const mockCourses = [
     level: 'Beginner',
     gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
     icon: '📱',
+    courseimage: 'web.jpg',
   },
   {
     courseid: 'c005',
@@ -75,6 +79,7 @@ export const mockCourses = [
     level: 'Advanced',
     gradient: 'linear-gradient(135deg, #0061ff 0%, #60efff 100%)',
     icon: '⚛️',
+    courseimage: 'react.jpg',
   },
   {
     courseid: 'c006',
@@ -90,6 +95,7 @@ export const mockCourses = [
     level: 'Intermediate',
     gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
     icon: '🔒',
+    courseimage: 'testing.jpg',
   },
   {
     courseid: 'c007',
@@ -105,6 +111,7 @@ export const mockCourses = [
     level: 'All Levels',
     gradient: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
     icon: '☁️',
+    courseimage: 'web.jpg',
   },
   {
     courseid: 'c008',
@@ -120,6 +127,7 @@ export const mockCourses = [
     level: 'Beginner',
     gradient: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
     icon: '📲',
+    courseimage: 'mobile app.jpg',
   },
   {
     courseid: 'c009',
@@ -135,6 +143,7 @@ export const mockCourses = [
     level: 'Beginner',
     gradient: 'linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)',
     icon: '📷',
+    courseimage: 'teacher1.jpg',
   },
   {
     courseid: 'c010',
@@ -150,6 +159,7 @@ export const mockCourses = [
     level: 'Intermediate',
     gradient: 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)',
     icon: '📈',
+    courseimage: 'web.jpg',
   },
   {
     courseid: 'c011',
@@ -165,6 +175,7 @@ export const mockCourses = [
     level: 'Beginner',
     gradient: 'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)',
     icon: '🐍',
+    courseimage: 'python.jpg',
   },
   {
     courseid: 'c012',
@@ -180,6 +191,7 @@ export const mockCourses = [
     level: 'Advanced',
     gradient: 'linear-gradient(135deg, #667eea 0%, #f5576c 100%)',
     icon: '⛓️',
+    courseimage: 'ai.webp',
   },
   {
     courseid: 'c013',
@@ -195,6 +207,7 @@ export const mockCourses = [
     level: 'Intermediate',
     gradient: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
     icon: '🐳',
+    courseimage: 'testing.jpg',
   },
   {
     courseid: 'c014',
@@ -210,6 +223,7 @@ export const mockCourses = [
     level: 'Intermediate',
     gradient: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)',
     icon: '🧮',
+    courseimage: 'react.jpg',
   },
   {
     courseid: 'c015',
@@ -225,6 +239,7 @@ export const mockCourses = [
     level: 'Beginner',
     gradient: 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)',
     icon: '🖌️',
+    courseimage: 'uiux.jpg',
   },
   {
     courseid: 'c016',
@@ -240,6 +255,7 @@ export const mockCourses = [
     level: 'Advanced',
     gradient: 'linear-gradient(135deg, #cd9cf2 0%, #f6f3ff 100%)',
     icon: '🧠',
+    courseimage: 'deep learning.jpg',
   },
   {
     courseid: 'c017',
@@ -255,6 +271,7 @@ export const mockCourses = [
     level: 'All Levels',
     gradient: 'linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)',
     icon: '🍎',
+    courseimage: 'mobile app.jpg',
   },
   {
     courseid: 'c018',
@@ -270,6 +287,7 @@ export const mockCourses = [
     level: 'Beginner',
     gradient: 'linear-gradient(135deg, #fddb92 0%, #d1fdff 100%)',
     icon: '🗄️',
+    courseimage: 'datascience.jpg',
   },
 ];
 
@@ -282,6 +300,7 @@ export const mockInstructors = [
     courses: 8,
     gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     initial: 'A',
+    image: 'teacher1.jpg',
   },
   {
     name: 'Jose Portilla',
@@ -291,6 +310,7 @@ export const mockInstructors = [
     courses: 12,
     gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
     initial: 'J',
+    image: 'teacher2.jpg',
   },
   {
     name: 'Maximilian Schwarzmuller',
@@ -300,6 +320,7 @@ export const mockInstructors = [
     courses: 15,
     gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
     initial: 'M',
+    image: 'teacher3.jpg',
   },
   {
     name: 'Stephane Maarek',
@@ -309,6 +330,7 @@ export const mockInstructors = [
     courses: 10,
     gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
     initial: 'S',
+    image: 'teacher1.jpg',
   },
   {
     name: 'Colt Steele',
@@ -318,6 +340,7 @@ export const mockInstructors = [
     courses: 9,
     gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
     initial: 'C',
+    image: 'teacher2.jpg',
   },
   {
     name: 'Stephen Grider',
@@ -327,6 +350,7 @@ export const mockInstructors = [
     courses: 14,
     gradient: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
     initial: 'S',
+    image: 'teacher3.jpg',
   },
   {
     name: 'Phil Ebiner',
@@ -336,6 +360,7 @@ export const mockInstructors = [
     courses: 20,
     gradient: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
     initial: 'P',
+    image: 'teacher1.jpg',
   },
   {
     name: 'Zaid Sabih',
@@ -345,6 +370,7 @@ export const mockInstructors = [
     courses: 7,
     gradient: 'linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)',
     initial: 'Z',
+    image: 'teacher2.jpg',
   },
   {
     name: 'Mumshad Mannambeth',
@@ -354,6 +380,7 @@ export const mockInstructors = [
     courses: 6,
     gradient: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
     initial: 'M',
+    image: 'teacher3.jpg',
   },
   {
     name: 'Daniel Walter Scott',
@@ -363,5 +390,6 @@ export const mockInstructors = [
     courses: 18,
     gradient: 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)',
     initial: 'D',
+    image: 'teacher1.jpg',
   },
 ];

@@ -134,8 +134,13 @@ const TeacherCard = ({ data, index, navigate, page }) => {
         elevation={1}
       >
         <img
-          style={{ width: '90%', height: '139px', borderRadius: '20px' }}
+          style={{ width: '90%', height: '139px', borderRadius: '20px', objectFit: 'cover' }}
           src={data.image ? `http://localhost:5000/instructorprofile/${data.image}` : '/path/to/fallback-image.jpg'}
+          onError={(e) => {
+            if (e.target.src.includes('localhost:5000')) {
+              e.target.src = `/${data.image}`;
+            }
+          }}
           alt="teacher"
         />
         <Box sx={{ display: 'flex', flexDirection: 'column', width: '90%', gap: '8px' }}>

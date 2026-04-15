@@ -17,24 +17,12 @@ const placeholderPng = Buffer.from(
 );
 
 function createPlaceholders() {
-  const instructorImages = ['instructor1.jpg', 'instructor2.jpg', 'instructor3.jpg'];
-  const courseImages = ['course1.jpg', 'course2.jpg', 'course3.jpg', 'course4.jpg', 'course5.jpg', 'course6.jpg'];
-
+  // Create directories if they don't exist
   ['instructorprofile', 'coursethumbnail'].forEach(dir => {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir);
   });
 
-  instructorImages.forEach(img => {
-    const p = path.join('instructorprofile', img);
-    if (!fs.existsSync(p)) fs.writeFileSync(p, placeholderPng);
-  });
-
-  courseImages.forEach(img => {
-    const p = path.join('coursethumbnail', img);
-    if (!fs.existsSync(p)) fs.writeFileSync(p, placeholderPng);
-  });
-
-  console.log('✅ Placeholder images created');
+  console.log('✅ Image directories ready');
 }
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
@@ -50,7 +38,7 @@ const instructors = [
     areaofexperience: ['React', 'Node.js', 'MongoDB', 'TypeScript'],
     professionalexperience: '10 years of industry experience',
     courses: ['course001', 'course002'],
-    image: 'instructor1.jpg'
+    image: 'teacher1.jpg'
   },
   {
     name: 'Priya Sharma',
@@ -62,7 +50,7 @@ const instructors = [
     areaofexperience: ['Python', 'TensorFlow', 'Data Analysis', 'Deep Learning'],
     professionalexperience: '8 years in data science and AI research',
     courses: ['course003', 'course004'],
-    image: 'instructor2.jpg'
+    image: 'teacher2.jpg'
   },
   {
     name: 'Marcus Lee',
@@ -74,7 +62,7 @@ const instructors = [
     areaofexperience: ['Figma', 'Adobe XD', 'Prototyping', 'User Research'],
     professionalexperience: '7 years designing products at scale',
     courses: ['course005', 'course006'],
-    image: 'instructor3.jpg'
+    image: 'teacher3.jpg'
   }
 ];
 
@@ -92,7 +80,7 @@ const courses = [
     keylearning: 'React, Hooks, Redux, React Router, Axios',
     price: '1999',
     totalbuy: 1240,
-    coursethumbnail: 'course1.jpg',
+    coursethumbnail: 'react.jpg',
     totalreview: 342,
     totalrating: 1641
   },
@@ -109,7 +97,7 @@ const courses = [
     keylearning: 'Node.js, Express, MongoDB, REST API, JWT',
     price: '1799',
     totalbuy: 980,
-    coursethumbnail: 'course2.jpg',
+    coursethumbnail: 'node.jpg',
     totalreview: 280,
     totalrating: 1316
   },
@@ -126,7 +114,7 @@ const courses = [
     keylearning: 'Python, Pandas, NumPy, Scikit-Learn, TensorFlow',
     price: '2499',
     totalbuy: 2100,
-    coursethumbnail: 'course3.jpg',
+    coursethumbnail: 'python.jpg',
     totalreview: 512,
     totalrating: 2508
   },
@@ -143,7 +131,7 @@ const courses = [
     keylearning: 'TensorFlow, Keras, CNNs, RNNs, NLP',
     price: '2999',
     totalbuy: 870,
-    coursethumbnail: 'course4.jpg',
+    coursethumbnail: 'deep learning.jpg',
     totalreview: 210,
     totalrating: 1008
   },
@@ -160,7 +148,7 @@ const courses = [
     keylearning: 'Figma, UI Design, UX Research, Prototyping',
     price: '1499',
     totalbuy: 1560,
-    coursethumbnail: 'course5.jpg',
+    coursethumbnail: 'uiux.jpg',
     totalreview: 390,
     totalrating: 1833
   },
@@ -177,7 +165,7 @@ const courses = [
     keylearning: 'Mobile Design, iOS, Android, Figma, Zeplin',
     price: '1699',
     totalbuy: 740,
-    coursethumbnail: 'course6.jpg',
+    coursethumbnail: 'mobile app.jpg',
     totalreview: 175,
     totalrating: 805
   }

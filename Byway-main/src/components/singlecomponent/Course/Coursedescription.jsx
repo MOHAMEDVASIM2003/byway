@@ -147,6 +147,11 @@ const Coursedescription = ({ coursedata, instructordetail }) => {
                     ? `http://localhost:5000/instructorprofile/${instructordetail[0].image}`
                     : undefined
                 }
+                onError={(e) => {
+                  if (e.target.src.includes('localhost:5000')) {
+                    e.target.src = `/${instructordetail[0]?.image}`;
+                  }
+                }}
                 alt="instructor"
               />
               <Box>

@@ -73,6 +73,11 @@ const Topinstructor = () => {
             <Box sx={{ mt: '-40px', mb: 1.5 }}>
               <Avatar
                 src={`http://localhost:5000/instructorprofile/${data.image}`}
+                onError={(e) => {
+                  if (e.target.src.includes('localhost:5000')) {
+                    e.target.src = `/${data.image}`;
+                  }
+                }}
                 alt={data.name}
                 sx={{ width: 80, height: 80, border: '4px solid #fff', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}
               />

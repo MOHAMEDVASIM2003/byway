@@ -83,11 +83,34 @@ const Topcourseinstructor = () => {
                         }}
                         elevation={1}
                     >
-                        <img
-                            style={{ width: '90%', height: '139px', borderRadius: '20px' }}
-                            src={`http://localhost:5000/coursethumbnail/${data.coursethumbnail}`}
-                            alt="course thumbnail"
-                        />
+                        {data.coursethumbnail ? (
+                            <img
+                                style={{ width: '90%', height: '139px', borderRadius: '20px', objectFit: 'cover' }}
+                                src={`http://localhost:5000/coursethumbnail/${data.coursethumbnail}`}
+                                alt="course thumbnail"
+                            />
+                        ) : data.courseimage ? (
+                            <img
+                                style={{ width: '90%', height: '139px', borderRadius: '20px', objectFit: 'cover' }}
+                                src={`/${data.courseimage}`}
+                                alt="course thumbnail"
+                            />
+                        ) : (
+                            <Box
+                                sx={{
+                                    width: '90%',
+                                    height: '139px',
+                                    borderRadius: '20px',
+                                    background: data.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '48px',
+                                }}
+                            >
+                                {data.icon || '📚'}
+                            </Box>
+                        )}
                         <Box sx={{ display: 'flex', flexDirection: 'column', width: '90%', gap: '8px' }}>
                             <Typography sx={{ fontSize: '18px', fontWeight: 600, color: '#0F172A' }}>
                                 {data.coursename}
