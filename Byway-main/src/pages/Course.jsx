@@ -5,6 +5,8 @@ import { Link } from '@mui/material';
 import axios from 'axios';
 import language from '../Asstes/language.svg';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import Userheader from '../components/wrappedcomponent/Userheader';
 import Footer from '../components/wrappedcomponent/Footer';
 import Coursedescription from '../components/singlecomponent/Course/Coursedescription';
@@ -90,6 +92,7 @@ const Course = () => {
   const reviewRef = useRef(1);
   const [review, setreview] = useState([]);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [isInWishlist, setIsInWishlist] = useState(false);
   // Tooltip state
   const [showFirstTooltip, setShowFirstTooltip] = useState(false);
   const [showSecondTooltip, setShowSecondTooltip] = useState(false);
@@ -138,6 +141,43 @@ const Course = () => {
       .catch((err) => {
         setSnackbar({ open: true, message: err.response?.data?.message || err.message || 'Failed to add to cart', severity: 'error' });
       });
+  };
+
+  const handleWishlist = (course) => {
+    if (!course.courseid || !userdata.username) {
+      setSnackbar({ open: true, message: 'Please log in to add courses to wishlist', severity: 'warning' });
+      return;
+    }
+
+    if (isInWishlist) {
+      // Remove from wishlist
+      axios
+        .post('http://localhost:5000/user/wishlistremove', {
+          username: userdata.username,
+          courseid: course.courseid,
+        })
+        .then((res) => {
+          setIsInWishlist(false);
+          setSnackbar({ open: true, message: 'Removed from wishlist', severity: 'success' });
+        })
+        .catch((err) => {
+          setSnackbar({ open: true, message: 'Failed to remove from wishlist', severity: 'error' });
+        });
+    } else {
+      // Add to wishlist
+      axios
+        .post('http://localhost:5000/user/wishlistadd', {
+          username: userdata.username,
+          courseid: course.courseid,
+        })
+        .then((res) => {
+          setIsInWishlist(true);
+          setSnackbar({ open: true, message: 'Added to wishlist!', severity: 'success' });
+        })
+        .catch((err) => {
+          setSnackbar({ open: true, message: 'Failed to add to wishlist', severity: 'error' });
+        });
+    }
   };
 
   useEffect(() => {
@@ -338,6 +378,25 @@ const Course = () => {
             )}
             <Button sx={buttonStyle} onClick={() => handlecart(coursedata)}>
               Add to Cart
+            </Button>
+            <Button
+              sx={buttonStyle}
+              onClick={() => handleWishlist(coursedata)}
+              title={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                {isInWishlist ? (
+                  <>
+                    <FavoriteIcon sx={{ fontSize: '20px' }} />
+                    Remove from Wishlist
+                  </>
+                ) : (
+                  <>
+                    <FavoriteBorderIcon sx={{ fontSize: '20px' }} />
+                    Add to Wishlist
+                  </>
+                )}
+              </Box>
             </Button>
             <Button
               sx={buttonStyle}

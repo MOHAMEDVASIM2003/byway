@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Card, Typography, Rating, Chip } from '@mui/material';
+import { Box, Card, Typography, Rating, Chip, IconButton, Tooltip } from '@mui/material';
 import axios from 'axios';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import { mockCourses } from '../../data/mockData';
+import { useSelector } from 'react-redux';
 
 const Topcourse = () => {
+  const userdata = useSelector((state) => state.userdetail);
   const [topcourse, setTopcourse] = useState([]);
   const [showAll, setShowAll] = useState(false);
+  const [wishlist, setWishlist] = useState({});
 
   useEffect(() => {
     axios.get('http://localhost:5000/course/coursedetail')
@@ -20,6 +25,37 @@ const Topcourse = () => {
         setTopcourse(mockCourses.slice(0, 10));
       });
   }, []);
+
+  const handleWishlistToggle = (course) => {
+    if (!userdata?.username) {
+      alert('Please log in to add courses to wishlist');
+      return;
+    }
+
+    if (wishlist[course.courseid]) {
+      // Remove from wishlist
+      axios
+        .post('http://localhost:5000/user/wishlistremove', {
+          username: userdata.username,
+          courseid: course.courseid,
+        })
+        .then(() => {
+          setWishlist(prev => ({ ...prev, [course.courseid]: false }));
+        })
+        .catch(err => console.error('Failed to remove from wishlist:', err));
+    } else {
+      // Add to wishlist
+      axios
+        .post('http://localhost:5000/user/wishlistadd', {
+          username: userdata.username,
+          courseid: course.courseid,
+        })
+        .then(() => {
+          setWishlist(prev => ({ ...prev, [course.courseid]: true }));
+        })
+        .catch(err => console.error('Failed to add to wishlist:', err));
+    }
+  };
 
   const displayed = topcourse.slice(0, showAll ? 10 : 4);
 
@@ -105,6 +141,30 @@ const Topcourse = () => {
                   }}
                 />
               )}
+              <Tooltip title={wishlist[data.courseid] ? 'Remove from Wishlist' : 'Add to Wishlist'}>
+                <IconButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleWishlistToggle(data);
+                  }}
+                  sx={{
+                    position: 'absolute',
+                    top: '10px',
+                    right: '10px',
+                    background: 'rgba(255,255,255,0.92)',
+                    backdropFilter: 'blur(4px)',
+                    '&:hover': {
+                      background: 'rgba(255,255,255,0.98)',
+                    }
+                  }}
+                >
+                  {wishlist[data.courseid] ? (
+                    <FavoriteIcon sx={{ color: '#EF4444', fontSize: '20px' }} />
+                  ) : (
+                    <FavoriteBorderIcon sx={{ color: '#64748B', fontSize: '20px' }} />
+                  )}
+                </IconButton>
+              </Tooltip>
             </Box>
             <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
               <Typography sx={{
