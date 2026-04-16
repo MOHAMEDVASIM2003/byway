@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Card, Typography, Rating, Avatar, Chip } from '@mui/material';
 import axios from 'axios';
+import { mockInstructors } from '../../data/mockData';
 
 const Topinstructor = () => {
   const [topinstructor, setInstructor] = useState([]);
@@ -14,7 +15,10 @@ const Topinstructor = () => {
         while (filled.length < 10) filled.push(...data);
         setInstructor(filled.slice(0, 10));
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.log('Backend unavailable, using mock instructors');
+        setInstructor(mockInstructors);
+      });
   }, []);
 
   const displayed = topinstructor.slice(0, showAll ? 10 : 4);
@@ -62,25 +66,40 @@ const Topinstructor = () => {
               border: '1px solid #BFDBFE',
             },
           }} elevation={0}>
-            {/* Banner */}
+            {/* Banner with instructor image */}
             <Box sx={{
-              width: '100%', height: '80px',
-              background: `linear-gradient(135deg, #${['3B82F6', '22C55E', 'F59E0B', 'EF4444', '8B5CF6', '06B6D4', 'EC4899', '10B981'][index % 8]}44 0%, #${['2563EB', '16A34A', 'D97706', 'DC2626', '7C3AED', '0891B2', 'DB2777', '059669'][index % 8]}22 100%)`,
+              width: '100%', height: '120px',
+              background: data.image ? '#f1f5f9' : `linear-gradient(135deg, #${['3B82F6', '22C55E', 'F59E0B', 'EF4444', '8B5CF6', '06B6D4', 'EC4899', '10B981'][index % 8]}44 0%, #${['2563EB', '16A34A', 'D97706', 'DC2626', '7C3AED', '0891B2', 'DB2777', '059669'][index % 8]}22 100%)`,
               position: 'relative',
-            }} />
-
-            {/* Avatar overlapping banner */}
-            <Box sx={{ mt: '-40px', mb: 1.5 }}>
-              <Avatar
-                src={`http://localhost:5000/instructorprofile/${data.image}`}
-                onError={(e) => {
-                  if (e.target.src.includes('localhost:5000')) {
-                    e.target.src = `/${data.image}`;
-                  }
-                }}
-                alt={data.name}
-                sx={{ width: 80, height: 80, border: '4px solid #fff', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}
-              />
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden',
+            }}>
+              {data.image ? (
+                <Box
+                  component="img"
+                  src={`/${data.image}`}
+                  alt={data.name}
+                  sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  onError={(e) => {
+                    // If public image fails, try backend
+                    if (!e.target.src.includes('localhost')) {
+                      e.target.src = `http://localhost:5000/instructorprofile/${data.image}`;
+                    }
+                  }}
+                />
+              ) : (
+                <Avatar
+                  sx={{
+                    width: 80, height: 80, border: '4px solid #fff',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    fontSize: '32px', fontWeight: 700
+                  }}
+                >
+                  {data.name ? data.name[0].toUpperCase() : '?'}
+                </Avatar>
+              )}
             </Box>
 
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '90%', gap: '6px', textAlign: 'center' }}>

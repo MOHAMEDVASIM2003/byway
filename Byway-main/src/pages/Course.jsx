@@ -261,7 +261,12 @@ const Course = () => {
                 {instructordetail?.[0] ? (
                   <Avatar
                     sx={{ width: '40px', height: '40px' }}
-                    src={`http://localhost:5000/instructorprofile/${instructordetail[0].image}`}
+                    src={`/${instructordetail[0].image}`}
+                    onError={(e) => {
+                      if (!e.target.src.includes('localhost')) {
+                        e.target.src = `http://localhost:5000/instructorprofile/${instructordetail[0].image}`;
+                      }
+                    }}
                     alt="instructor"
                   />
                 ) : (

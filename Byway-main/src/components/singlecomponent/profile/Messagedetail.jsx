@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Avatar, Box, Card, Typography } from '@mui/material'
+import { Box, Card, Typography } from '@mui/material'
 import axios from 'axios'
 import { useSelector } from 'react-redux'
 const Messagedetail = () => {
@@ -46,14 +46,16 @@ const Messagedetail = () => {
             <Card sx={{ display: 'flex', flexDirection: 'column', gap: '20px', p: 2 }}>
               <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                 <Box sx={{ display: 'flex',gap:'10px',alignItems:'center' }}>
-                  <Avatar 
-                    src={`http://localhost:5000/instructorprofile/${data.image}`}
+                  <Box
+                    component="img"
+                    src={`/${data.image}`}
                     onError={(e) => {
-                      if (e.target.src.includes('localhost:5000')) {
-                        e.target.src = `/${data.image}`;
+                      if (!e.target.src.includes('localhost')) {
+                        e.target.src = `http://localhost:5000/instructorprofile/${data.image}`;
                       }
                     }}
-                  ></Avatar>
+                    sx={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }}
+                  />
                   <Typography sx={{height:'fit-content'}}>{data.name}</Typography>
                 </Box>
                 <Typography>{formatCustomDate(data.message.date)}</Typography>
