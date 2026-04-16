@@ -1,221 +1,390 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Rating, Typography, Button } from '@mui/material';
-import { Link } from 'react-router-dom';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import { Box, Rating, Typography, Button, Card, Chip, Dialog, DialogTitle, DialogContent } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import Userheader from '../components/wrappedcomponent/Userheader'
 import Footer from '../components/wrappedcomponent/Footer'
-
-
-const buttonStyle = {
-    position: 'relative',
-    height: '50px',
-    width: '100%',
-    backgroundColor: '#fff',
-    border: '2px solid #252525',
-    color: '#000',
-    transition: 'all 0.5s ease-in-out',
-    cursor: 'pointer',
-    overflow: 'hidden',
-    textTransform: 'none',
-    fontWeight: 800,
-    letterSpacing: '4px',
-    zIndex: 1,
-    '&:hover': {
-        boxShadow: '1px 1px 50px #252525',
-        color: 'white',
-        backgroundColor: 'black',
-        border: '2px solid #000',
-    },
-};
-
-const removeButtonStyle = {
-    ...buttonStyle,
-    '&:hover': {
-        boxShadow: '1px 1px 50px #ff0000',
-        color: 'white',
-        backgroundColor: 'red',
-        border: '2px solid #ff0000',
-    },
-};
-
-const buttonAfterStyle = {
-    content: '""',
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    backgroundColor: '#000',
-    borderRadius: '30px',
-    height: '100%',
-    width: '100%',
-    zIndex: -1,
-    transition: 'all 0.5s ease-in-out',
-    transform: 'scale(0)',
-    '&:hover': {
-        transform: 'scale(1)',
-    },
-};
-
-const removeButtonAfterStyle = {
-    ...buttonAfterStyle,
-    backgroundColor: '#ff0000',
-};
-
-const headers = () => ({
-  py: 3,
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap:'30px',
-});
-
+import { mockCourses } from '../data/mockData';
 
 const Whisliste = () => {
     const data = useSelector((state) => state.userdetail);
-    const [cartCourses, setCartCourses] = useState([]);
-
-    const handleadd = (props) => {
-        axios.post('http://localhost:5000/user/cartaddwhisliste', { username: data.username, courseid: props.courseid })
-            .then(res => {
-                const course = cartCourses.filter((data) => data.courseid !== props.courseid)
-                setCartCourses(course)
-            })
-    }
-
-    const handleRemove = (props) => {
-        axios.post('http://localhost:5000/user/wishlistremove', {
-            username: data.username,
-            courseid: props.courseid
-        })
-            .then(res => {
-                const updatedWishlist = cartCourses.filter(course => course.courseid !== props.courseid);
-                setCartCourses(updatedWishlist);
-            })
-            .catch(err => {
-                console.error("Failed to remove from wishlist:", err);
-            });
-    };
+    const [wishlistCourses, setWishlistCourses] = useState([]);
+    const [openDialog, setOpenDialog] = useState(false);
+    const [selectedCourse, setSelectedCourse] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchCartData = async () => {
+        const fetchWishlistData = async () => {
+            setIsLoading(true);
             try {
-                const response = await axios.post('http://localhost:5000/user/wishlistget', {
-                    username: data.username,
-                });
-                setCartCourses(response.data);
+                if (data?.username) {
+                    const response = await axios.post('http://localhost:5000/user/wishlistget', {
+                        username: data.username,
+                    });
+                    setWishlistCourses(response.data || []);
+                }
             } catch (error) {
-                console.error('Failed to fetch cart data:', error);
+                console.log('Backend unavailable, using mock wishlist data');
+                // Use first 8 mock courses as wishlist
+                setWishlistCourses(mockCourses.slice(0, 8));
+            } finally {
+                setIsLoading(false);
             }
         };
+        fetchWishlistData();
+    }, [data?.username]);
 
-        fetchCartData();
-    }, [data.username])
+    const handleAddToCart = (course) => {
+        if (data?.username) {
+            axios.post('http://localhost:5000/user/cartaddwhisliste', {
+                username: data.username,
+                courseid: course.courseid
+            })
+                .then(res => {
+                    handleRemoveFromWishlist(course);
+                })
+                .catch(err => console.error('Failed to add to cart:', err));
+        } else {
+            alert('Please login to add courses to cart');
+        }
+    };
 
-    useEffect(() => {
-        console.log(cartCourses)
-    }, [cartCourses])
+    const handleRemoveFromWishlist = (course) => {
+        if (data?.username) {
+            axios.post('http://localhost:5000/user/wishlistremove', {
+                username: data.username,
+                courseid: course.courseid
+            })
+                .then(res => {
+                    setWishlistCourses(wishlistCourses.filter(c => c.courseid !== course.courseid));
+                })
+                .catch(err => {
+                    // Remove locally even if backend fails
+                    setWishlistCourses(wishlistCourses.filter(c => c.courseid !== course.courseid));
+                    console.error('Failed to remove from wishlist:', err);
+                });
+        } else {
+            setWishlistCourses(wishlistCourses.filter(c => c.courseid !== course.courseid));
+        }
+    };
+
+    const handleCourseClick = (course) => {
+        setSelectedCourse(course);
+        setOpenDialog(true);
+    };
+
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+        setSelectedCourse(null);
+    };
 
     return (
-        <Box>
+        <Box sx={{ width: '100%', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <Userheader />
-            <Box sx={{ width: '90%', ml: '5%', py: 2 }}>
-                <Box sx={{ ...headers() }}>
-                    <Typography fontWeight="bold" fontSize="24px">Whisliste</Typography>
-
-                    {/* Styled Breadcrumb Links */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        {[
-                            { label: 'Categories', path: '/category' },
-                            { label: 'Details', path: '/details' },
-                            { label: 'Shopping Cart', path: '/cart' }
-                        ].map((item, index, arr) => (
-                            <React.Fragment key={item.path}>
-                                <Link
-                                    to={item.path}
-                                    style={{
-                                        textDecoration: 'none',
-                                        fontWeight: 400,
-                                        fontSize: '14px',
-                                        padding: '6px 12px',
-                                        borderRadius: '6px',
-                                        backgroundColor: window.location.pathname === item.path ? '#000' : '#fff',
-                                        color: 'Shopping Cart' === item.label ? '#2563EB' : '#0F172A',
-                                        transition: '0.3s',
-                                        display: 'inline-block'
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.7)';
-                                        e.currentTarget.style.transform = 'scale(1.05)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.backgroundColor = window.location.pathname === item.path ? '#000' : '#fff';
-                                        e.currentTarget.style.transform = 'scale(1)';
-                                    }}
-                                >
-                                    {item.label}
-                                </Link>
-                                {index < arr.length - 1 && (
-                                    <ArrowForwardIosIcon sx={{ fontSize: '10px', color: '#E2E8F0' }} />
-                                )}
-                            </React.Fragment>
-                        ))}
-                    </Box>
+            
+            <Box sx={{ flex: 1, width: '90%', mx: 'auto', py: 4 }}>
+                {/* Header Section */}
+                <Box sx={{ mb: 4 }}>
+                    <Typography sx={{ fontSize: { xs: '24px', md: '32px' }, fontWeight: 700, color: '#0F172A', mb: 1 }}>
+                        My Wishlist
+                    </Typography>
+                    <Typography sx={{ fontSize: '14px', color: '#64748B' }}>
+                        {wishlistCourses.length} course{wishlistCourses.length !== 1 ? 's' : ''} saved in your wishlist
+                    </Typography>
                 </Box>
-                {
-                    cartCourses && cartCourses.map((data) => {
-                        return (
-                            <Box
-                                key={data._id}
-                                sx={{
-                                    width: '100%',
-                                    height: '40vh',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    border: '1px solid #e0e0e0',
-                                    borderRadius: '8px',
-                                    overflow: 'hidden',
-                                    mb: 2,
-                                    py: 2,
-                                    px: 2,
-                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                                }}
-                            >
-                                <Box sx={{ width: '20vw', height: '100%' }}>
-                                    <img
-                                        src={`http://localhost:5000/coursethumbnail/${data.coursethumbnail}`}
-                                        alt={data.coursename || 'Course Thumbnail'}
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '10px' }}
-                                    />
-                                </Box>
-                                <Box sx={{ width: '70%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', p: 2 }}>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                                        <Typography variant="h6" sx={{ fontWeight: 'bold', fontSize: '18px' }}>
-                                            {data.coursename || 'No Name'}
-                                        </Typography>
-                                        <Typography>${data.price}</Typography>
-                                        <Typography>by {data.instructorName}</Typography>
-                                        <Box sx={{ display: 'flex', gap: '10px' }}><Typography>{Math.round(data.rating)}</Typography> <Rating value={data.rating || 0} readOnly /><Typography sx={{ fontSize: '14px', fontWeight: 400 }}>22 Total Hours. 155 Lectures. All levels</Typography></Box>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', gap: '10px' }}>
-                                        <Button sx={buttonStyle} onClick={() => handleadd(data)}>
-                                            <Box sx={buttonAfterStyle} />
-                                            Add to cart
-                                        </Button>
-                                        <Button sx={removeButtonStyle} onClick={() => handleRemove(data)}>
-                                            <Box sx={removeButtonAfterStyle} />
-                                            Remove
-                                        </Button>
-                                    </Box>
-                                </Box>
-                            </Box>
-                        )
-                    })
-                }
-            </Box>
-            <Footer />
-        </Box>
-    )
-}
 
-export default Whisliste
+                {/* Empty State */}
+                {!isLoading && wishlistCourses.length === 0 ? (
+                    <Box sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        py: 8,
+                        textAlign: 'center',
+                    }}>
+                        <FavoriteBorderIcon sx={{ fontSize: '64px', color: '#CBD5E1', mb: 2 }} />
+                        <Typography sx={{ fontSize: '20px', fontWeight: 600, color: '#0F172A', mb: 1 }}>
+                            Your wishlist is empty
+                        </Typography>
+                        <Typography sx={{ fontSize: '14px', color: '#64748B', mb: 3 }}>
+                            Start adding courses to your wishlist and come back to enroll in them later
+                        </Typography>
+                        <Button
+                            variant="contained"
+                            sx={{
+                                background: '#3B82F6',
+                                color: 'white',
+                                px: 3,
+                                py: 1,
+                                borderRadius: '8px',
+                                textTransform: 'none',
+                                fontWeight: 600,
+                                '&:hover': {
+                                    background: '#2563EB',
+                                }
+                            }}
+                            component={RouterLink}
+                            to="/category"
+                        >
+                            Explore Courses
+                        </Button>
+                    </Box>
+                ) : (
+                    <>
+                        {/* Courses Grid */}
+                        <Box sx={{
+                            display: 'grid',
+                            gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' },
+                            gap: '20px',
+                        }}>
+                            {wishlistCourses.map((course, index) => (
+                                <Card
+                                    key={course.courseid || index}
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        borderRadius: '16px',
+                                        overflow: 'hidden',
+                                        border: '1px solid #F1F5F9',
+                                        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                                        transition: 'all 0.3s ease',
+                                        '&:hover': {
+                                            transform: 'translateY(-8px)',
+                                            boxShadow: '0 12px 32px rgba(59,130,246,0.15)',
+                                            border: '1px solid #BFDBFE',
+                                        },
+                                        cursor: 'pointer',
+                                        height: '100%',
+                                    }}
+                                    elevation={0}
+                                    onClick={() => handleCourseClick(course)}
+                                >
+                                    {/* Course Image */}
+                                    <Box sx={{
+                                        width: '100%',
+                                        height: '150px',
+                                        background: course.coursethumbnail ? '#f1f5f9' : (course.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'),
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        position: 'relative',
+                                        overflow: 'hidden',
+                                    }}>
+                                        {course.coursethumbnail ? (
+                                            <Box
+                                                component="img"
+                                                src={`http://localhost:5000/coursethumbnail/${course.coursethumbnail}`}
+                                                onError={(e) => {
+                                                    e.target.src = `/${course.courseimage || 'web.jpg'}`;
+                                                }}
+                                                alt={course.coursename}
+                                                sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                            />
+                                        ) : course.courseimage ? (
+                                            <Box
+                                                component="img"
+                                                src={`/${course.courseimage}`}
+                                                alt={course.coursename}
+                                                sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                            />
+                                        ) : (
+                                            <Typography sx={{ fontSize: '44px', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.2))' }}>
+                                                {course.icon || '📚'}
+                                            </Typography>
+                                        )}
+                                        {/* Category Badge */}
+                                        {course.category && (
+                                            <Chip
+                                                label={course.category}
+                                                size="small"
+                                                sx={{
+                                                    position: 'absolute',
+                                                    top: '10px',
+                                                    left: '10px',
+                                                    background: 'rgba(255,255,255,0.92)',
+                                                    backdropFilter: 'blur(4px)',
+                                                    fontSize: '11px',
+                                                    fontWeight: 600,
+                                                }}
+                                            />
+                                        )}
+                                        {/* Wishlist Icon */}
+                                        <Box
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleRemoveFromWishlist(course);
+                                            }}
+                                            sx={{
+                                                position: 'absolute',
+                                                top: '10px',
+                                                right: '10px',
+                                                background: 'rgba(255,255,255,0.92)',
+                                                backdropFilter: 'blur(4px)',
+                                                borderRadius: '50%',
+                                                p: 1,
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                '&:hover': {
+                                                    background: 'rgba(239, 68, 68, 0.9)',
+                                                    '& svg': {
+                                                        color: 'white',
+                                                    }
+                                                }
+                                            }}
+                                        >
+                                            <FavoriteIcon sx={{ color: '#EF4444', fontSize: '20px' }} />
+                                        </Box>
+                                    </Box>
+
+                                    {/* Course Info */}
+                                    <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
+                                        <Typography sx={{
+                                            fontSize: '14px',
+                                            fontWeight: 700,
+                                            color: '#0F172A',
+                                            lineHeight: 1.3,
+                                            display: '-webkit-box',
+                                            WebkitLineClamp: 2,
+                                            WebkitBoxOrient: 'vertical',
+                                            overflow: 'hidden'
+                                        }}>
+                                            {course.coursename}
+                                        </Typography>
+
+                                        <Typography sx={{ fontSize: '12px', color: '#64748B' }}>
+                                            by {course.instructorname || 'Expert Instructor'}
+                                        </Typography>
+
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            <Rating size="small" value={course.rating || 4.5} readOnly precision={0.1} sx={{ fontSize: '14px' }} />
+                                            <Typography sx={{ fontSize: '12px', color: '#64748B' }}>
+                                                ({course.totalreview || 0})
+                                            </Typography>
+                                        </Box>
+
+                                        <Typography sx={{ fontSize: '12px', color: '#64748B', mt: 'auto' }}>
+                                            {course.hours || 0}h • {course.lectures || 0} lectures
+                                        </Typography>
+
+                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 'auto', pt: 1 }}>
+                                            <Typography sx={{ fontSize: '16px', fontWeight: 700, color: '#0F172A' }}>
+                                                ${course.price || 0}
+                                            </Typography>
+                                        </Box>
+                                    </Box>
+
+                                    {/* Action Buttons */}
+                                    <Box sx={{ p: 2, display: 'flex', gap: '8px' }}>
+                                        <Button
+                                            fullWidth
+                                            variant="outlined"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleAddToCart(course);
+                                            }}
+                                            sx={{
+                                                borderColor: '#3B82F6',
+                                                color: '#3B82F6',
+                                                textTransform: 'none',
+                                                fontWeight: 600,
+                                                fontSize: '12px',
+                                                py: 1,
+                                                '&:hover': {
+                                                    borderColor: '#2563EB',
+                                                    backgroundColor: 'rgba(59,130,246,0.05)',
+                                                }
+                                            }}
+                                            startIcon={<ShoppingCartIcon sx={{ fontSize: '16px' }} />}
+                                        >
+                                            Add Cart
+                                        </Button>
+                                    </Box>
+                                </Card>
+                            ))}
+                        </Box>
+                    </>
+                )}
+            </Box>
+
+            <Footer />
+
+            {/* Course Detail Dialog */}
+            <Dialog
+                open={openDialog}
+                onClose={handleCloseDialog}
+                maxWidth="sm"
+                fullWidth
+            >
+                {selectedCourse && (
+                    <>
+                        <DialogTitle sx={{ fontWeight: 700, fontSize: '18px' }}>
+                            {selectedCourse.coursename}
+                        </DialogTitle>
+                        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: '12px', py: 2 }}>
+                            <Box
+                                component="img"
+                                src={`/${selectedCourse.courseimage || 'web.jpg'}`}
+                                alt={selectedCourse.coursename}
+                                sx={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '8px' }}
+                                onError={(e) => {
+                                    e.target.src = `http://localhost:5000/coursethumbnail/${selectedCourse.coursethumbnail}`;
+                                }}
+                            />
+                            <Box>
+                                <Typography sx={{ fontSize: '14px', color: '#64748B', mb: 1 }}>
+                                    Instructor: <strong>{selectedCourse.instructorname}</strong>
+                                </Typography>
+                                <Typography sx={{ fontSize: '14px', color: '#64748B', mb: 1 }}>
+                                    Category: <strong>{selectedCourse.category}</strong>
+                                </Typography>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px', mb: 1 }}>
+                                    <Rating value={selectedCourse.rating || 4.5} readOnly size="small" />
+                                    <Typography sx={{ fontSize: '12px', color: '#64748B' }}>
+                                        {selectedCourse.rating} ({selectedCourse.totalreview || 0} reviews)
+                                    </Typography>
+                                </Box>
+                                <Typography sx={{ fontSize: '24px', fontWeight: 700, color: '#0F172A' }}>
+                                    ${selectedCourse.price}
+                                </Typography>
+                            </Box>
+                            <Box sx={{ display: 'flex', gap: '12px' }}>
+                                <Button
+                                    fullWidth
+                                    variant="contained"
+                                    onClick={(e) => {
+                                        handleAddToCart(selectedCourse);
+                                        handleCloseDialog();
+                                    }}
+                                    sx={{ background: '#3B82F6', textTransform: 'none', fontWeight: 600 }}
+                                >
+                                    Add to Cart
+                                </Button>
+                                <Button
+                                    fullWidth
+                                    variant="outlined"
+                                    color="error"
+                                    onClick={(e) => {
+                                        handleRemoveFromWishlist(selectedCourse);
+                                        handleCloseDialog();
+                                    }}
+                                    sx={{ textTransform: 'none', fontWeight: 600 }}
+                                >
+                                    Remove
+                                </Button>
+                            </Box>
+                        </DialogContent>
+                    </>
+                )}
+            </Dialog>
+        </Box>
+    );
+};
+
+export default Whisliste;
