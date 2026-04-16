@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Rating, Typography, Button, Card, Chip, Dialog, DialogTitle, DialogContent } from '@mui/material';
+import { Box, Rating, Typography, Button, Card, Chip, Dialog, DialogTitle, DialogContent, Snackbar, Alert } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -16,6 +16,7 @@ const Whisliste = () => {
     const [openDialog, setOpenDialog] = useState(false);
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
     useEffect(() => {
         const fetchWishlistData = async () => {
@@ -45,15 +46,19 @@ const Whisliste = () => {
                 courseid: course.courseid
             })
                 .then(res => {
-                    handleRemoveFromWishlist(course);
+                    handleRemoveFromWishlist(course, true);
+                    setSnackbar({ open: true, message: `You added ${course.coursename} to cart`, severity: 'success' });
                 })
-                .catch(err => console.error('Failed to add to cart:', err));
+                .catch(err => {
+                    setSnackbar({ open: true, message: 'Failed to add to cart', severity: 'error' });
+                    console.error('Failed to add to cart:', err);
+                });
         } else {
-            alert('Please login to add courses to cart');
+            setSnackbar({ open: true, message: 'Please login to add courses to cart', severity: 'warning' });
         }
     };
 
-    const handleRemoveFromWishlist = (course) => {
+    const handleRemoveFromWishlist = (course, silent = false) => {
         if (data?.username) {
             axios.post('http://localhost:5000/user/wishlistremove', {
                 username: data.username,
@@ -61,10 +66,14 @@ const Whisliste = () => {
             })
                 .then(res => {
                     setWishlistCourses(wishlistCourses.filter(c => c.courseid !== course.courseid));
+                    if (!silent) {
+                        setSnackbar({ open: true, message: `You removed ${course.coursename} from wishlist`, severity: 'success' });
+                    }
                 })
                 .catch(err => {
                     // Remove locally even if backend fails
                     setWishlistCourses(wishlistCourses.filter(c => c.courseid !== course.courseid));
+                    setSnackbar({ open: true, message: 'Failed to remove from wishlist', severity: 'error' });
                     console.error('Failed to remove from wishlist:', err);
                 });
         } else {
@@ -383,6 +392,17 @@ const Whisliste = () => {
                     </>
                 )}
             </Dialog>
+
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={3000}
+                onClose={() => setSnackbar(s => ({ ...s, open: false }))}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert severity={snackbar.severity} onClose={() => setSnackbar(s => ({ ...s, open: false }))} sx={{ width: '100%' }}>
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };
