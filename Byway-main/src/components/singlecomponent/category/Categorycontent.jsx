@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, Typography, Button, Rating, Stack, FormGroup, FormControlLabel, Checkbox, Card, Pagination, Chip } from '@mui/material';
+import { Box, Typography, Button, Rating, Stack, FormGroup, FormControlLabel, Checkbox, Card, Pagination, Chip, IconButton, Tooltip, Snackbar, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -8,6 +8,8 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import SignalCellularAltIcon from '@mui/icons-material/SignalCellularAlt';
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import { useSelector } from 'react-redux';
 import { motion, useInView, useAnimationControls } from 'framer-motion';
 import { mockCourses } from '../../../data/mockData';
@@ -35,7 +37,7 @@ const cardVariants = {
   }),
 };
 
-const CourseCard = ({ data, index, handlenavigate, page }) => {
+const CourseCard = ({ data, index, handlenavigate, page, wishlist, onWishlistToggle, userdata }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: false, margin: '0px 0px -100px 0px' });
   const controls = useAnimationControls();
@@ -142,6 +144,30 @@ const CourseCard = ({ data, index, handlenavigate, page }) => {
               }}
             />
           )}
+          <Tooltip title={wishlist[data.courseid] ? 'Remove from Wishlist' : 'Add to Wishlist'}>
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+                onWishlistToggle(data);
+              }}
+              sx={{
+                position: 'absolute',
+                bottom: 10,
+                right: 10,
+                background: 'rgba(255,255,255,0.92)',
+                backdropFilter: 'blur(4px)',
+                '&:hover': {
+                  background: 'rgba(255,255,255,0.98)',
+                }
+              }}
+            >
+              {wishlist[data.courseid] ? (
+                <FavoriteIcon sx={{ color: '#EF4444', fontSize: '20px' }} />
+              ) : (
+                <FavoriteBorderIcon sx={{ color: '#64748B', fontSize: '20px' }} />
+              )}
+            </IconButton>
+          </Tooltip>
         </Box>
 
         {/* Content */}
@@ -212,6 +238,7 @@ const CourseCard = ({ data, index, handlenavigate, page }) => {
 };
 
 const Categorycontent = (props) => {
+  const userdata = useSelector((state) => state.userdetail);
   const data = useSelector((state) => state.userlearn);
   const filtervisible = props.filtervisible;
   const sortBy = props.sortBy || '';
@@ -225,6 +252,8 @@ const Categorycontent = (props) => {
   const [originalData, setOriginalData] = useState([]);
   const [, setrowcount] = useState();
   const [currentPage, setCurrentPage] = useState(1);
+  const [wishlist, setWishlist] = useState({});
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const itemsPerPage = 9;
   const arr = ['1-10', '10-15', '15-20', '20-25', '25-30', '30-35', '35-40', '40-45', '45-50', 'more than 50'];
   const navigate = useNavigate();
@@ -310,6 +339,45 @@ const Categorycontent = (props) => {
       navigate('/indiviualcourse', { state: { data: props } });
     } else {
       navigate('/course', { state: { data: props } });
+    }
+  };
+
+  const handleWishlistToggle = (course) => {
+    if (!userdata?.username) {
+      setSnackbar({ open: true, message: 'Please log in to add courses to wishlist', severity: 'warning' });
+      return;
+    }
+
+    if (wishlist[course.courseid]) {
+      // Remove from wishlist
+      axios
+        .post('http://localhost:5000/user/wishlistremove', {
+          username: userdata.username,
+          courseid: course.courseid,
+        })
+        .then(() => {
+          setWishlist(prev => ({ ...prev, [course.courseid]: false }));
+          setSnackbar({ open: true, message: `You removed ${course.coursename} from wishlist`, severity: 'success' });
+        })
+        .catch(err => {
+          setSnackbar({ open: true, message: 'Failed to remove from wishlist', severity: 'error' });
+          console.error('Failed to remove from wishlist:', err);
+        });
+    } else {
+      // Add to wishlist
+      axios
+        .post('http://localhost:5000/user/wishlistadd', {
+          username: userdata.username,
+          courseid: course.courseid,
+        })
+        .then(() => {
+          setWishlist(prev => ({ ...prev, [course.courseid]: true }));
+          setSnackbar({ open: true, message: `You added ${course.coursename} to wishlist`, severity: 'success' });
+        })
+        .catch(err => {
+          setSnackbar({ open: true, message: 'Failed to add to wishlist', severity: 'error' });
+          console.error('Failed to add to wishlist:', err);
+        });
     }
   };
 
@@ -466,6 +534,9 @@ const Categorycontent = (props) => {
                 index={index}
                 handlenavigate={handlenavigate}
                 page={currentPage}
+                wishlist={wishlist}
+                onWishlistToggle={handleWishlistToggle}
+                userdata={userdata}
               />
             ))}
         </Box>
@@ -489,6 +560,16 @@ const Categorycontent = (props) => {
           />
         </Box>
       </Box>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar(s => ({ ...s, open: false }))}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert severity={snackbar.severity} onClose={() => setSnackbar(s => ({ ...s, open: false }))} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

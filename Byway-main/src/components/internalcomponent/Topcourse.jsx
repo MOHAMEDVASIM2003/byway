@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Card, Typography, Rating, Chip, IconButton, Tooltip } from '@mui/material';
+import { Box, Card, Typography, Rating, Chip, IconButton, Tooltip, Snackbar, Alert } from '@mui/material';
 import axios from 'axios';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
@@ -13,6 +13,7 @@ const Topcourse = () => {
   const [topcourse, setTopcourse] = useState([]);
   const [showAll, setShowAll] = useState(false);
   const [wishlist, setWishlist] = useState({});
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   useEffect(() => {
     axios.get('http://localhost:5000/course/coursedetail')
@@ -28,7 +29,7 @@ const Topcourse = () => {
 
   const handleWishlistToggle = (course) => {
     if (!userdata?.username) {
-      alert('Please log in to add courses to wishlist');
+      setSnackbar({ open: true, message: 'Please log in to add courses to wishlist', severity: 'warning' });
       return;
     }
 
@@ -41,8 +42,12 @@ const Topcourse = () => {
         })
         .then(() => {
           setWishlist(prev => ({ ...prev, [course.courseid]: false }));
+          setSnackbar({ open: true, message: `You removed ${course.coursename} from wishlist`, severity: 'success' });
         })
-        .catch(err => console.error('Failed to remove from wishlist:', err));
+        .catch(err => {
+          setSnackbar({ open: true, message: 'Failed to remove from wishlist', severity: 'error' });
+          console.error('Failed to remove from wishlist:', err);
+        });
     } else {
       // Add to wishlist
       axios
@@ -52,8 +57,12 @@ const Topcourse = () => {
         })
         .then(() => {
           setWishlist(prev => ({ ...prev, [course.courseid]: true }));
+          setSnackbar({ open: true, message: `You added ${course.coursename} to wishlist`, severity: 'success' });
         })
-        .catch(err => console.error('Failed to add to wishlist:', err));
+        .catch(err => {
+          setSnackbar({ open: true, message: 'Failed to add to wishlist', severity: 'error' });
+          console.error('Failed to add to wishlist:', err);
+        });
     }
   };
 
@@ -210,6 +219,16 @@ const Topcourse = () => {
           </Typography>
         </Box>
       )}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar(s => ({ ...s, open: false }))}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert severity={snackbar.severity} onClose={() => setSnackbar(s => ({ ...s, open: false }))} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

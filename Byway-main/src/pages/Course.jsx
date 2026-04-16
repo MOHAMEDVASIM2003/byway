@@ -136,7 +136,7 @@ const Course = () => {
       .then((res) => {
         const updatedCarddata = [...(userdata.carddata || []), props.courseid];
         dispatch(initialdata({ ...userdata, carddata: updatedCarddata }));
-        setSnackbar({ open: true, message: res.data.message || 'Added to cart!', severity: 'success' });
+        setSnackbar({ open: true, message: `You added ${props.coursename} to cart`, severity: 'success' });
       })
       .catch((err) => {
         setSnackbar({ open: true, message: err.response?.data?.message || err.message || 'Failed to add to cart', severity: 'error' });
@@ -158,7 +158,7 @@ const Course = () => {
         })
         .then((res) => {
           setIsInWishlist(false);
-          setSnackbar({ open: true, message: 'Removed from wishlist', severity: 'success' });
+          setSnackbar({ open: true, message: `You removed ${course.coursename} from wishlist`, severity: 'success' });
         })
         .catch((err) => {
           setSnackbar({ open: true, message: 'Failed to remove from wishlist', severity: 'error' });
@@ -172,7 +172,7 @@ const Course = () => {
         })
         .then((res) => {
           setIsInWishlist(true);
-          setSnackbar({ open: true, message: 'Added to wishlist!', severity: 'success' });
+          setSnackbar({ open: true, message: `You added ${course.coursename} to wishlist`, severity: 'success' });
         })
         .catch((err) => {
           setSnackbar({ open: true, message: 'Failed to add to wishlist', severity: 'error' });
