@@ -144,12 +144,12 @@ const Coursedescription = ({ coursedata, instructordetail }) => {
                 sx={{ width: 120, height: 120, mr: 2 }}
                 src={
                   instructordetail[0].image
-                    ? `http://localhost:5000/instructorprofile/${instructordetail[0].image}`
+                    ? `/${instructordetail[0].image}`
                     : undefined
                 }
                 onError={(e) => {
-                  if (e.target.src.includes('localhost:5000')) {
-                    e.target.src = `/${instructordetail[0]?.image}`;
+                  if (e.target.src && !e.target.src.includes('localhost')) {
+                    e.target.src = `http://localhost:5000/instructorprofile/${instructordetail[0]?.image}`;
                   }
                 }}
                 alt="instructor"

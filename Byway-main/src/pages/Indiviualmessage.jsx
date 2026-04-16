@@ -115,7 +115,12 @@ const Indiviualmessage = () => {
 
 
         <Avatar
-          src={`http://localhost:5000/instructorprofile/${instructor.image}`}
+          src={`/${instructor.image}`}
+          onError={(e) => {
+            if (!e.target.src.includes('localhost')) {
+              e.target.src = `http://localhost:5000/instructorprofile/${instructor.image}`;
+            }
+          }}
           sx={{ width: 60, height: 60 }}
         />
         <Typography variant="h6" sx={{ fontWeight: 600 }}>{instructor.name}</Typography>
@@ -156,7 +161,12 @@ const Indiviualmessage = () => {
                 >
                   {!isUser && (
                     <Avatar
-                      src={`http://localhost:5000/instructorprofile/${instructor.image}`}
+                      src={`/${instructor.image}`}
+                      onError={(e) => {
+                        if (!e.target.src.includes('localhost')) {
+                          e.target.src = `http://localhost:5000/instructorprofile/${instructor.image}`;
+                        }
+                      }}
                       sx={{ width: 32, height: 32, mr: 1, mt: 'auto' }}
                     />
                   )}

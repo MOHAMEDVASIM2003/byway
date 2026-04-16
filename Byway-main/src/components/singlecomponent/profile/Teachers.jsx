@@ -135,10 +135,10 @@ const TeacherCard = ({ data, index, navigate, page }) => {
       >
         <img
           style={{ width: '90%', height: '139px', borderRadius: '20px', objectFit: 'cover' }}
-          src={data.image ? `http://localhost:5000/instructorprofile/${data.image}` : '/path/to/fallback-image.jpg'}
+          src={data.image ? `/${data.image}` : '/placeholder.jpg'}
           onError={(e) => {
-            if (e.target.src.includes('localhost:5000')) {
-              e.target.src = `/${data.image}`;
+            if (e.target.src && !e.target.src.includes('localhost')) {
+              e.target.src = `http://localhost:5000/instructorprofile/${data.image}`;
             }
           }}
           alt="teacher"
